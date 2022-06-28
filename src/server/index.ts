@@ -1,5 +1,7 @@
-import { Request, Response, Express } from "express";
+import { Request, Response } from "express";
 import * as express from "express";
+import * as cors from "cors";
+import * as path from "path";
 import { Instance } from "express-ws";
 import * as createWebsocketInstance from "express-ws";
 
@@ -8,16 +10,21 @@ export class KeyboardServer {
 
 	public sendKey(key: string) {
 		const message = { key };
-		console.log(this.instance.getWss().clients, message);
 		this.instance
 			.getWss()
 			.clients.forEach((client) => client.send(JSON.stringify(message)));
 	}
 }
 
-const startKeyboardServer = (port: number): KeyboardServer => {
+const runKeyboardServer = (port: number): KeyboardServer => {
 	const app = express();
 	const websocketInstance = createWebsocketInstance(app);
+
+	websocketInstance.app.use(cors());
+	websocketInstance.app.use(
+		"/",
+		express.static(path.join(__dirname, "../ui/dist"))
+	);
 
 	websocketInstance.app.get("/heartbeat", (_req: Request, res: Response) => {
 		res.status(200).send(JSON.stringify({ response: "OK" }));
@@ -34,4 +41,4 @@ const startKeyboardServer = (port: number): KeyboardServer => {
 	return new KeyboardServer(websocketInstance);
 };
 
-export default startKeyboardServer;
+export default runKeyboardServer;

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import startKeyboardServer from "./keyboardServer";
+import runKeyboardServer from "./server/index";
 import createInlineCompletionProvider from "./inlineCompletionProvider";
 import * as fs from "fs";
 import * as path from "path";
@@ -15,7 +15,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	const start = vscode.commands.registerCommand(
 		"learn-writing.start",
 		async () => {
-			const server = startKeyboardServer(8080);
+			const server = runKeyboardServer(8080);
 			const panel = vscode.window.createWebviewPanel(
 				"openWebview",
 				"Keyboard Helper",
@@ -26,8 +26,10 @@ export async function activate(context: vscode.ExtensionContext) {
 			);
 
 			panel.webview.html = await getMyWebviewContent(
-				path.join(context.extensionPath, "media", "index.html")
+				path.join(context.extensionPath, "ui", "dist", "index.html")
 			);
+
+			console.log(path.join(context.extensionPath, "ui", "dist", "index.html"));
 
 			vscode.languages.registerInlineCompletionItemProvider(
 				{ pattern: "**" },
