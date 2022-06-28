@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="#000000" />
+		<title>Solid App</title>
+		<script type="module" crossorigin>
+			const he = function () {
+				const t = document.createElement("link").relList;
+				if (t && t.supports && t.supports("modulepreload")) return;
+				for (const l of document.querySelectorAll('link[rel="modulepreload"]'))
+					i(l);
+				new MutationObserver((l) => {
+					for (const o of l)
+						if (o.type === "childList")
+							for (const s of o.addedNodes)
+								s.tagName === "LINK" && s.rel === "modulepreload" && i(s);
+				}).observe(document, { childList: !0, subtree: !0 });
+				function n(l) {
+					const o = {};
+					return (
+						l.integrity && (o.integrity = l.integrity),
+						l.referrerpolicy && (o.referrerPolicy = l.referrerpolicy),
+						l.crossorigin === "use-credentials"
+							? (o.credentials = "include")
+							: l.crossorigin === "anonymous"
+							? (o.credentials = "omit")
+							: (o.credentials = "same-origin"),
+						o
+					);
+				}
+				function i(l) {
+					if (l.ep) return;
+					l.ep = !0;
+					const o = n(l);
+					fetch(l.href, o);
+				}
+			};
+			he();
+			const C = {};
+			function de(e) {
+				C.context = e;
+			}
+			const ge = (e, t) => e === t,
+				we = Symbol("solid-track"),
+				U = { equals: ge };
+			let ie = ae;
+			const $ = {},
+				_ = 1,
+				K = 2,
+				le = { owned: null, cleanups: null, context: null, owner: null };
+			var g = null;
+			let B = null,
+				h = null,
+				z = null,
+				w = null,
+				y = null,
+				V = 0;
+			function P(e, t) {
+				const n = h,
+					i = g,
+					l = e.length === 0,
+					o = l
+						? le
+						: { owned: null, cleanups: null, context: null, owner: t || i },
+					s = l ? e : () => e(() => Y(o));
+				(g = o), (h = null);
+				try {
+					return X(s, !0);
+				} finally {
+					(h = n), (g = i);
+				}
+			}
+			function oe(e, t) {
+				t = t ? Object.assign({}, U, t) : U;
+				const n = {
+						value: e,
+						observers: null,
+						observerSlots: null,
+						pending: $,
+						comparator: t.equals || void 0,
+					},
+					i = (l) => (
+						typeof l == "function" &&
+							(l = l(n.pending !== $ ? n.pending : n.value)),
+						Z(n, l)
+					);
+				return [re.bind(n), i];
+			}
+			function F(e, t, n) {
+				const i = q(e, t, !1, _);
+				I(i);
+			}
+			function pe(e, t, n) {
+				ie = ke;
+				const i = q(e, t, !1, _);
+				(i.user = !0), y ? y.push(i) : I(i);
+			}
+			function ye(e, t, n) {
+				n = n ? Object.assign({}, U, n) : U;
+				const i = q(e, t, !0, 0);
+				return (
+					(i.pending = $),
+					(i.observers = null),
+					(i.observerSlots = null),
+					(i.comparator = n.equals || void 0),
+					I(i),
+					re.bind(i)
+				);
+			}
+			function me(e) {
+				if (z) return e();
+				let t;
+				const n = (z = []);
+				try {
+					t = e();
+				} finally {
+					z = null;
+				}
+				return (
+					X(() => {
+						for (let i = 0; i < n.length; i += 1) {
+							const l = n[i];
+							if (l.pending !== $) {
+								const o = l.pending;
+								(l.pending = $), Z(l, o);
+							}
+						}
+					}, !1),
+					t
+				);
+			}
+			function H(e) {
+				let t,
+					n = h;
+				return (h = null), (t = e()), (h = n), t;
+			}
+			function be(e) {
+				pe(() => H(e));
+			}
+			function se(e) {
+				return (
+					g === null ||
+						(g.cleanups === null ? (g.cleanups = [e]) : g.cleanups.push(e)),
+					e
+				);
+			}
+			function re() {
+				const e = B;
+				if (this.sources && (this.state || e)) {
+					const t = w;
+					(w = null), this.state === _ || e ? I(this) : D(this), (w = t);
+				}
+				if (h) {
+					const t = this.observers ? this.observers.length : 0;
+					h.sources
+						? (h.sources.push(this), h.sourceSlots.push(t))
+						: ((h.sources = [this]), (h.sourceSlots = [t])),
+						this.observers
+							? (this.observers.push(h),
+							  this.observerSlots.push(h.sources.length - 1))
+							: ((this.observers = [h]),
+							  (this.observerSlots = [h.sources.length - 1]));
+				}
+				return this.value;
+			}
+			function Z(e, t, n) {
+				if (z) return e.pending === $ && z.push(e), (e.pending = t), t;
+				if (e.comparator && e.comparator(e.value, t)) return t;
+				let i = !1;
+				return (
+					(e.value = t),
+					e.observers &&
+						e.observers.length &&
+						X(() => {
+							for (let l = 0; l < e.observers.length; l += 1) {
+								const o = e.observers[l];
+								i && B.disposed.has(o),
+									((i && !o.tState) || (!i && !o.state)) &&
+										(o.pure ? w.push(o) : y.push(o), o.observers && ce(o)),
+									i || (o.state = _);
+							}
+							if (w.length > 1e6) throw ((w = []), new Error());
+						}, !1),
+					t
+				);
+			}
+			function I(e) {
+				if (!e.fn) return;
+				Y(e);
+				const t = g,
+					n = h,
+					i = V;
+				(h = g = e), ve(e, e.value, i), (h = n), (g = t);
+			}
+			function ve(e, t, n) {
+				let i;
+				try {
+					i = e.fn(t);
+				} catch (l) {
+					fe(l);
+				}
+				(!e.updatedAt || e.updatedAt <= n) &&
+					(e.observers && e.observers.length ? Z(e, i) : (e.value = i),
+					(e.updatedAt = n));
+			}
+			function q(e, t, n, i = _, l) {
+				const o = {
+					fn: e,
+					state: i,
+					updatedAt: null,
+					owned: null,
+					sources: null,
+					sourceSlots: null,
+					cleanups: null,
+					value: t,
+					owner: g,
+					context: null,
+					pure: n,
+				};
+				return (
+					g === null ||
+						(g !== le && (g.owned ? g.owned.push(o) : (g.owned = [o]))),
+					o
+				);
+			}
+			function O(e) {
+				const t = B;
+				if (e.state === 0 || t) return;
+				if (e.state === K || t) return D(e);
+				if (e.suspense && H(e.suspense.inFallback))
+					return e.suspense.effects.push(e);
+				const n = [e];
+				for (; (e = e.owner) && (!e.updatedAt || e.updatedAt < V); )
+					(e.state || t) && n.push(e);
+				for (let i = n.length - 1; i >= 0; i--)
+					if (((e = n[i]), e.state === _ || t)) I(e);
+					else if (e.state === K || t) {
+						const l = w;
+						(w = null), D(e, n[0]), (w = l);
+					}
+			}
+			function X(e, t) {
+				if (w) return e();
+				let n = !1;
+				t || (w = []), y ? (n = !0) : (y = []), V++;
+				try {
+					const i = e();
+					return xe(n), i;
+				} catch (i) {
+					fe(i);
+				} finally {
+					(w = null), n || (y = null);
+				}
+			}
+			function xe(e) {
+				w && (ae(w), (w = null)),
+					!e &&
+						(y.length
+							? me(() => {
+									ie(y), (y = null);
+							  })
+							: (y = null));
+			}
+			function ae(e) {
+				for (let t = 0; t < e.length; t++) O(e[t]);
+			}
+			function ke(e) {
+				let t,
+					n = 0;
+				for (t = 0; t < e.length; t++) {
+					const l = e[t];
+					l.user ? (e[n++] = l) : O(l);
+				}
+				C.context && de();
+				const i = e.length;
+				for (t = 0; t < n; t++) O(e[t]);
+				for (t = i; t < e.length; t++) O(e[t]);
+			}
+			function D(e, t) {
+				const n = B;
+				e.state = 0;
+				for (let i = 0; i < e.sources.length; i += 1) {
+					const l = e.sources[i];
+					l.sources &&
+						(l.state === _ || n
+							? l !== t && O(l)
+							: (l.state === K || n) && D(l, t));
+				}
+			}
+			function ce(e) {
+				const t = B;
+				for (let n = 0; n < e.observers.length; n += 1) {
+					const i = e.observers[n];
+					(!i.state || t) &&
+						((i.state = K),
+						i.pure ? w.push(i) : y.push(i),
+						i.observers && ce(i));
+				}
+			}
+			function Y(e) {
+				let t;
+				if (e.sources)
+					for (; e.sources.length; ) {
+						const n = e.sources.pop(),
+							i = e.sourceSlots.pop(),
+							l = n.observers;
+						if (l && l.length) {
+							const o = l.pop(),
+								s = n.observerSlots.pop();
+							i < l.length &&
+								((o.sourceSlots[s] = i), (l[i] = o), (n.observerSlots[i] = s));
+						}
+					}
+				if (e.owned) {
+					for (t = 0; t < e.owned.length; t++) Y(e.owned[t]);
+					e.owned = null;
+				}
+				if (e.cleanups) {
+					for (t = 0; t < e.cleanups.length; t++) e.cleanups[t]();
+					e.cleanups = null;
+				}
+				(e.state = 0), (e.context = null);
+			}
+			function fe(e) {
+				throw e;
+			}
+			const Ae = Symbol("fallback");
+			function ee(e) {
+				for (let t = 0; t < e.length; t++) e[t]();
+			}
+			function Ce(e, t, n = {}) {
+				let i = [],
+					l = [],
+					o = [],
+					s = 0,
+					r = t.length > 1 ? [] : null;
+				return (
+					se(() => ee(o)),
+					() => {
+						let f = e() || [],
+							c,
+							a;
+						return (
+							f[we],
+							H(() => {
+								let d = f.length,
+									m,
+									A,
+									E,
+									M,
+									R,
+									b,
+									v,
+									x,
+									S;
+								if (d === 0)
+									s !== 0 &&
+										(ee(o),
+										(o = []),
+										(i = []),
+										(l = []),
+										(s = 0),
+										r && (r = [])),
+										n.fallback &&
+											((i = [Ae]),
+											(l[0] = P((ue) => ((o[0] = ue), n.fallback()))),
+											(s = 1));
+								else if (s === 0) {
+									for (l = new Array(d), a = 0; a < d; a++)
+										(i[a] = f[a]), (l[a] = P(u));
+									s = d;
+								} else {
+									for (
+										E = new Array(d),
+											M = new Array(d),
+											r && (R = new Array(d)),
+											b = 0,
+											v = Math.min(s, d);
+										b < v && i[b] === f[b];
+										b++
+									);
+									for (
+										v = s - 1, x = d - 1;
+										v >= b && x >= b && i[v] === f[x];
+										v--, x--
+									)
+										(E[x] = l[v]), (M[x] = o[v]), r && (R[x] = r[v]);
+									for (m = new Map(), A = new Array(x + 1), a = x; a >= b; a--)
+										(S = f[a]),
+											(c = m.get(S)),
+											(A[a] = c === void 0 ? -1 : c),
+											m.set(S, a);
+									for (c = b; c <= v; c++)
+										(S = i[c]),
+											(a = m.get(S)),
+											a !== void 0 && a !== -1
+												? ((E[a] = l[c]),
+												  (M[a] = o[c]),
+												  r && (R[a] = r[c]),
+												  (a = A[a]),
+												  m.set(S, a))
+												: o[c]();
+									for (a = b; a < d; a++)
+										a in E
+											? ((l[a] = E[a]),
+											  (o[a] = M[a]),
+											  r && ((r[a] = R[a]), r[a](a)))
+											: (l[a] = P(u));
+									(l = l.slice(0, (s = d))), (i = f.slice(0));
+								}
+								return l;
+							})
+						);
+						function u(d) {
+							if (((o[a] = d), r)) {
+								const [m, A] = oe(a);
+								return (r[a] = A), t(f[a], m);
+							}
+							return t(f[a]);
+						}
+					}
+				);
+			}
+			function p(e, t) {
+				return H(() => e(t || {}));
+			}
+			function L(e) {
+				const t = "fallback" in e && { fallback: () => e.fallback };
+				return ye(Ce(() => e.each, e.children, t || void 0));
+			}
+			function _e(e, t, n) {
+				let i = n.length,
+					l = t.length,
+					o = i,
+					s = 0,
+					r = 0,
+					f = t[l - 1].nextSibling,
+					c = null;
+				for (; s < l || r < o; ) {
+					if (t[s] === n[r]) {
+						s++, r++;
+						continue;
+					}
+					for (; t[l - 1] === n[o - 1]; ) l--, o--;
+					if (l === s) {
+						const a = o < i ? (r ? n[r - 1].nextSibling : n[o - r]) : f;
+						for (; r < o; ) e.insertBefore(n[r++], a);
+					} else if (o === r)
+						for (; s < l; ) (!c || !c.has(t[s])) && t[s].remove(), s++;
+					else if (t[s] === n[o - 1] && n[r] === t[l - 1]) {
+						const a = t[--l].nextSibling;
+						e.insertBefore(n[r++], t[s++].nextSibling),
+							e.insertBefore(n[--o], a),
+							(t[l] = n[o]);
+					} else {
+						if (!c) {
+							c = new Map();
+							let u = r;
+							for (; u < o; ) c.set(n[u], u++);
+						}
+						const a = c.get(t[s]);
+						if (a != null)
+							if (r < a && a < o) {
+								let u = s,
+									d = 1,
+									m;
+								for (
+									;
+									++u < l &&
+									u < o &&
+									!((m = c.get(t[u])) == null || m !== a + d);
+
+								)
+									d++;
+								if (d > a - r) {
+									const A = t[s];
+									for (; r < a; ) e.insertBefore(n[r++], A);
+								} else e.replaceChild(n[r++], t[s++]);
+							} else s++;
+						else t[s++].remove();
+					}
+				}
+			}
+			function Se(e, t, n) {
+				let i;
+				return (
+					P((l) => {
+						(i = l),
+							t === document ? e() : k(t, e(), t.firstChild ? null : void 0, n);
+					}),
+					() => {
+						i(), (t.textContent = "");
+					}
+				);
+			}
+			function W(e, t, n) {
+				const i = document.createElement("template");
+				i.innerHTML = e;
+				let l = i.content.firstChild;
+				return n && (l = l.firstChild), l;
+			}
+			function G(e, t) {
+				t == null ? e.removeAttribute("class") : (e.className = t);
+			}
+			function k(e, t, n, i) {
+				if ((n !== void 0 && !i && (i = []), typeof t != "function"))
+					return j(e, t, i, n);
+				F((l) => j(e, t(), l, n), i);
+			}
+			function j(e, t, n, i, l) {
+				for (
+					C.context && !n && (n = [...e.childNodes]);
+					typeof n == "function";
+
+				)
+					n = n();
+				if (t === n) return n;
+				const o = typeof t,
+					s = i !== void 0;
+				if (
+					((e = (s && n[0] && n[0].parentNode) || e),
+					o === "string" || o === "number")
+				) {
+					if (C.context) return n;
+					if ((o === "number" && (t = t.toString()), s)) {
+						let r = n[0];
+						r && r.nodeType === 3
+							? (r.data = t)
+							: (r = document.createTextNode(t)),
+							(n = N(e, n, i, r));
+					} else
+						n !== "" && typeof n == "string"
+							? (n = e.firstChild.data = t)
+							: (n = e.textContent = t);
+				} else if (t == null || o === "boolean") {
+					if (C.context) return n;
+					n = N(e, n, i);
+				} else {
+					if (o === "function")
+						return (
+							F(() => {
+								let r = t();
+								for (; typeof r == "function"; ) r = r();
+								n = j(e, r, n, i);
+							}),
+							() => n
+						);
+					if (Array.isArray(t)) {
+						const r = [];
+						if (J(r, t, l)) return F(() => (n = j(e, r, n, i, !0))), () => n;
+						if (C.context) {
+							for (let f = 0; f < r.length; f++)
+								if (r[f].parentNode) return (n = r);
+						}
+						if (r.length === 0) {
+							if (((n = N(e, n, i)), s)) return n;
+						} else
+							Array.isArray(n)
+								? n.length === 0
+									? te(e, r, i)
+									: _e(e, n, r)
+								: (n && N(e), te(e, r));
+						n = r;
+					} else if (t instanceof Node) {
+						if (C.context && t.parentNode) return (n = s ? [t] : t);
+						if (Array.isArray(n)) {
+							if (s) return (n = N(e, n, i, t));
+							N(e, n, null, t);
+						} else
+							n == null || n === "" || !e.firstChild
+								? e.appendChild(t)
+								: e.replaceChild(t, e.firstChild);
+						n = t;
+					}
+				}
+				return n;
+			}
+			function J(e, t, n) {
+				let i = !1;
+				for (let l = 0, o = t.length; l < o; l++) {
+					let s = t[l],
+						r;
+					if (s instanceof Node) e.push(s);
+					else if (!(s == null || s === !0 || s === !1))
+						if (Array.isArray(s)) i = J(e, s) || i;
+						else if ((r = typeof s) == "string")
+							e.push(document.createTextNode(s));
+						else if (r === "function")
+							if (n) {
+								for (; typeof s == "function"; ) s = s();
+								i = J(e, Array.isArray(s) ? s : [s]) || i;
+							} else e.push(s), (i = !0);
+						else e.push(document.createTextNode(s.toString()));
+				}
+				return i;
+			}
+			function te(e, t, n) {
+				for (let i = 0, l = t.length; i < l; i++) e.insertBefore(t[i], n);
+			}
+			function N(e, t, n, i) {
+				if (n === void 0) return (e.textContent = "");
+				const l = i || document.createTextNode("");
+				if (t.length) {
+					let o = !1;
+					for (let s = t.length - 1; s >= 0; s--) {
+						const r = t[s];
+						if (l !== r) {
+							const f = r.parentNode === e;
+							!o && !s
+								? f
+									? e.replaceChild(l, r)
+									: e.insertBefore(l, n)
+								: f && r.remove();
+						} else o = !0;
+					}
+				} else e.insertBefore(l, n);
+				return [l];
+			}
+			const Ne = {
+					"`": 5,
+					1: 5,
+					2: 5,
+					tab: 5,
+					q: 5,
+					a: 5,
+					shift: 5,
+					z: 5,
+					3: 4,
+					"#": 4,
+					w: 4,
+					s: 4,
+					x: 4,
+					4: 3,
+					$: 3,
+					e: 3,
+					d: 3,
+					c: 3,
+					5: 2,
+					"%": 2,
+					r: 2,
+					f: 2,
+					v: 2,
+					6: 2,
+					"^": 2,
+					t: 2,
+					g: 2,
+					b: 2,
+					" ": 1,
+					"]": 5,
+					"}": 5,
+					"\\": 5,
+					"|": 5,
+					enter: 5,
+					"": 5,
+					"=": 5,
+					"+": 5,
+					"[": 5,
+					"{": 5,
+					"'": 5,
+					'"': 5,
+					"-": 5,
+					_: 5,
+					p: 5,
+					";": 5,
+					":": 5,
+					"/": 5,
+					"?": 5,
+					0: 4,
+					")": 4,
+					o: 4,
+					l: 4,
+					".": 4,
+					">": 4,
+					9: 3,
+					"(": 3,
+					i: 3,
+					k: 3,
+					",": 3,
+					"<": 3,
+					8: 2,
+					"*": 2,
+					u: 2,
+					j: 2,
+					m: 2,
+					7: 2,
+					"&": 2,
+					y: 2,
+					h: 2,
+					n: 2,
+				},
+				Le = [
+					"~",
+					"!",
+					"@",
+					"#",
+					"$",
+					"%",
+					"^",
+					"&",
+					"*",
+					"(",
+					")",
+					"_",
+					"+",
+					"{",
+					"}",
+					":",
+					'"',
+					"|",
+					"<",
+					">",
+					"?",
+				],
+				Q = (e) =>
+					["Q", "A", "Z", "~", "!", "@"].includes(e) ? 4 : Ne[e.toLowerCase()],
+				$e = (e) => [
+					...[
+						["~", "`"],
+						["!", "1"],
+						["@", "2"],
+						["#", "3"],
+						["$", "4"],
+						["%", "5"],
+						["^", "6"],
+						["&", "7"],
+						["*", "8"],
+						["(", "9"],
+						[")", "0"],
+						["_", "-"],
+						["+", "="],
+					].map((n) => ({
+						variant: "double",
+						title: n,
+						touch: n[0] === e || n[1] === e,
+					})),
+					{
+						variant: "letter",
+						title: "backspace",
+						verticalAlign: "down",
+						horizontalAlign: "right",
+						width: "w4",
+						touch: !1,
+					},
+				],
+				Ee = (e) => {
+					const t = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+						n = [
+							["{", "["],
+							["}", "]"],
+						];
+					return [
+						{
+							variant: "letter",
+							title: "tab",
+							verticalAlign: "down",
+							horizontalAlign: "left",
+							width: "w3",
+							touch: e === "tab",
+						},
+						...t.map((i) => ({
+							variant: "letter",
+							title: i,
+							touch: i.toLowerCase() === e.toLowerCase(),
+						})),
+						...n.map((i) => ({
+							variant: "double",
+							title: i,
+							touch: i[0] === e || i[1] === e,
+						})),
+						{
+							variant: "letter",
+							title: "enter",
+							verticalAlign: "down",
+							horizontalAlign: "right",
+							width: "w3",
+							touch:
+								e ===
+								`
+`,
+						},
+					];
+				},
+				Te = (e) => {
+					const t = ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+						n = [
+							[":", ";"],
+							['"', "'"],
+							["|", "\\"],
+						];
+					return [
+						{
+							variant: "letter",
+							title: "caps lock",
+							verticalAlign: "down",
+							horizontalAlign: "left",
+							width: "w4",
+							touch: !1,
+						},
+						...t.map((i) => ({
+							variant: "letter",
+							title: i,
+							touch: i.toLowerCase() === e.toLowerCase(),
+						})),
+						...n.map((i) => ({
+							variant: "double",
+							title: i,
+							touch: i[0] === e || i[1] === e,
+						})),
+						{
+							variant: "letter",
+							title: "",
+							verticalAlign: "down",
+							horizontalAlign: "right",
+							width: "w1",
+							touch:
+								e ===
+								`
+`,
+						},
+					];
+				},
+				ze = (e) => {
+					const t = ["Z", "X", "C", "V", "B", "N", "M"],
+						n = [
+							["<", ","],
+							[">", "."],
+							["?", "/"],
+						];
+					return [
+						{
+							variant: "letter",
+							title: "shift",
+							verticalAlign: "down",
+							horizontalAlign: "left",
+							width: "w6",
+							touch: e.toLowerCase() !== e || Le.includes(e),
+						},
+						...t.map((i) => ({
+							variant: "letter",
+							title: i,
+							touch: i.toLowerCase() === e.toLowerCase(),
+						})),
+						...n.map((i) => ({
+							variant: "double",
+							title: i,
+							touch: i[0] === e || i[1] === e,
+						})),
+						{
+							variant: "letter",
+							title: "shift",
+							verticalAlign: "down",
+							horizontalAlign: "right",
+							width: "w6",
+							touch: !1,
+						},
+					];
+				},
+				Oe = (e) => [
+					{
+						variant: "letter",
+						title: "ctrl",
+						verticalAlign: "down",
+						horizontalAlign: "left",
+						width: "w1",
+						touch: !1,
+					},
+					{
+						variant: "letter",
+						title: "fn",
+						verticalAlign: "down",
+						horizontalAlign: "left",
+						width: "w1",
+						touch: !1,
+					},
+					{
+						variant: "letter",
+						title: "option",
+						verticalAlign: "down",
+						horizontalAlign: "left",
+						width: "w1",
+						touch: !1,
+					},
+					{
+						variant: "letter",
+						title: "alt",
+						verticalAlign: "down",
+						horizontalAlign: "left",
+						width: "w3",
+						touch: !1,
+					},
+					{ variant: "space", touch: e === " " },
+					{
+						variant: "letter",
+						title: "alt",
+						verticalAlign: "down",
+						horizontalAlign: "right",
+						width: "w3",
+						touch: !1,
+					},
+					{
+						variant: "letter",
+						title: "ctrl",
+						verticalAlign: "down",
+						horizontalAlign: "right",
+						width: "w1",
+						touch: !1,
+					},
+				],
+				Fe = W("<div>&nbsp;</div>"),
+				Be = W("<div><span></span></div>"),
+				ne = W("<div></div>"),
+				T = (e) => {
+					const { variant: t, touch: n } = e;
+					if (t === "space")
+						return (() => {
+							const l = Fe.cloneNode(!0);
+							return (
+								F(() =>
+									G(l, `key--double key--space ${n ? "touch-" + Q(" ") : ""}`)
+								),
+								l
+							);
+						})();
+					const { title: i } = e;
+					if (t === "letter") {
+						const { horizontalAlign: l, verticalAlign: o, width: s } = e;
+						let r = s ? `key--${s} ` : "";
+						const f = Q(e.title);
+						return (
+							(r += n && f ? "touch-" + f : ""),
+							(() => {
+								const c = Be.cloneNode(!0),
+									a = c.firstChild;
+								return (
+									G(c, r),
+									c.classList.toggle("key--letter", !s && !l && !o),
+									c.classList.toggle("key--word", !!s),
+									c.classList.toggle("touch", n),
+									c.classList.toggle(
+										"key--bottom-right",
+										o === "down" && l === "right"
+									),
+									c.classList.toggle(
+										"key--bottom-left",
+										o === "down" && l === "left"
+									),
+									c.classList.toggle("empty", !i),
+									k(a, i),
+									c
+								);
+							})()
+						);
+					}
+					return (() => {
+						const l = ne.cloneNode(!0);
+						return (
+							k(
+								l,
+								p(L, {
+									get each() {
+										return e.title;
+									},
+									children: (o) =>
+										(() => {
+											const s = ne.cloneNode(!0);
+											return k(s, o), s;
+										})(),
+								})
+							),
+							F(() => G(l, `key--double ${n ? "touch-" + Q(i[0]) : ""}`)),
+							l
+						);
+					})();
+				},
+				Ie = W(
+					'<div class="keyboard-container"><div class="keyboard"><div class="keyboard__row"></div><div class="keyboard__row"></div><div class="keyboard__row"></div><div class="keyboard__row"></div><div class="keyboard__row"><div class="key--arrow"></div><div class="key--double key--arrow--tall"></div><div class="key--arrow"></div></div></div><div class="hands"><div class="finger touch-5"></div><div class="finger touch-4" style="margin-top: -17px;"></div><div class="finger touch-3" style="margin-top: -30px;"></div><div class="finger touch-2" style="margin-top: -15px;"></div><div class="finger touch-1" style="margin-right: 15px"></div><div class="finger touch-1"></div><div class="finger touch-2" style="margin-top: -15px;"></div><div class="finger touch-3" style="margin-top: -30px;"></div><div class="finger touch-4" style="margin-top: -17px;"></div><div class="finger touch-5"></div></div></div>'
+				),
+				Me = (e) =>
+					(() => {
+						const t = Ie.cloneNode(!0),
+							n = t.firstChild,
+							i = n.firstChild,
+							l = i.nextSibling,
+							o = l.nextSibling,
+							s = o.nextSibling,
+							r = s.nextSibling,
+							f = r.firstChild,
+							c = f.nextSibling,
+							a = c.nextSibling;
+						return (
+							k(
+								i,
+								p(L, {
+									get each() {
+										return $e(e.input);
+									},
+									children: (u) => p(T, u),
+								})
+							),
+							k(
+								l,
+								p(L, {
+									get each() {
+										return Ee(e.input);
+									},
+									children: (u) => p(T, u),
+								})
+							),
+							k(
+								o,
+								p(L, {
+									get each() {
+										return Te(e.input);
+									},
+									children: (u) => p(T, u),
+								})
+							),
+							k(
+								s,
+								p(L, {
+									get each() {
+										return ze(e.input);
+									},
+									children: (u) => p(T, u),
+								})
+							),
+							k(
+								r,
+								p(L, {
+									get each() {
+										return Oe(e.input);
+									},
+									children: (u) => p(T, u),
+								}),
+								f
+							),
+							f.style.setProperty("background", "none"),
+							c.style.setProperty("background", "none"),
+							a.style.setProperty("background", "none"),
+							t
+						);
+					})(),
+				Re = () => {
+					const [e, t] = oe("");
+					return (
+						be(() => {
+							const n = new WebSocket("ws://localhost:8080/");
+							n.addEventListener("message", (i) => {
+								t(JSON.parse(i.data).key);
+							}),
+								se(() => n.close());
+						}),
+						p(Me, {
+							get input() {
+								return e();
+							},
+						})
+					);
+				};
+			Se(() => p(Re, {}), document.getElementById("root"));
+		</script>
+		<style>
+			body {
+				margin: 0;
+				font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+					Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+			}
+			code {
+				font-family: source-code-pro, Menlo, Monaco, Consolas, Courier New,
+					monospace;
+			}
+			html,
+			body {
+				height: 100%;
+			}
+			.keyboard-container {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: center;
+				height: 100%;
+			}
+			.keyboard {
+				text-align: center;
+				font-size: 14px;
+				font-family: sans-serif;
+				max-width: 1500px;
+			}
+			.keyboard__row {
+				display: inline-block;
+				height: 3em;
+				margin: 0.2em;
+			}
+			.keyboard__row--h1 {
+				height: 1.7em;
+				line-height: 1.4em;
+			}
+			.keyboard__row--h3 {
+				height: 3.3em;
+			}
+			.keyboard__row > * {
+				position: relative;
+				background: #333;
+				text-align: center;
+				color: #eee;
+				float: left;
+				border-radius: 0.3em;
+				margin: 0.2em;
+				padding: 0.2em;
+				width: 3.3em;
+				height: 100%;
+				box-sizing: border-box;
+			}
+			.keyboard__row--h1 > div {
+				width: 3.5em;
+			}
+			.key--w3 {
+				width: 4.6em;
+			}
+			.key--w4 {
+				width: 6em;
+			}
+			.key--w5 {
+				width: 6.5em;
+			}
+			.key--w6 {
+				width: 8.3em;
+			}
+			.key--space {
+				width: 18em;
+			}
+			.key--double > * {
+				padding-top: 0.1em;
+			}
+			.key--letter {
+				line-height: 2.8em;
+			}
+			.key--bottom-left > * {
+				position: absolute;
+				text-align: left;
+				bottom: 0.4em;
+				left: 0.4em;
+			}
+			.key--bottom-right > * {
+				position: absolute;
+				text-align: right;
+				bottom: 0.4em;
+				right: 0.4em;
+			}
+			.key--fn > * {
+				font-size: 0.6em;
+				line-height: 1em;
+				padding-top: 1.2em;
+				padding-right: 0.2em;
+				text-align: right;
+				float: right;
+			}
+			.key--word > * {
+				font-size: 0.8em;
+			}
+			.key--arrow--tall > *,
+			.key--arrow > * {
+				font-size: 0.5em;
+				line-height: 3em;
+			}
+			.key--arrow {
+				height: 1.8em;
+				margin-top: 1.7em;
+				line-height: 0.5em;
+			}
+			.key--arrow--tall > * {
+				padding-top: 0.2em;
+			}
+			.keyboard > .keyboard__row {
+				text-align: center;
+			}
+			.touch-1 {
+				background: rgb(106, 128, 255);
+				color: #000;
+			}
+			.touch-2 {
+				background: rgb(121, 255, 139);
+				color: #000;
+			}
+			.touch-3 {
+				background: rgb(245, 255, 111);
+				color: #000;
+			}
+			.touch-4 {
+				background: rgb(255, 202, 105);
+				color: #000;
+			}
+			.touch-5 {
+				background: rgb(255, 114, 114);
+				color: #000;
+			}
+			.empty {
+				top: -15px;
+				left: -1px;
+				height: 57px;
+			}
+			.finger {
+				width: 40px;
+				height: 40px;
+				border-radius: 25px 25px 0 0;
+				margin-left: 5px;
+			}
+			.hands {
+				display: flex;
+			}
+		</style>
+	</head>
+	<body id="root"></body>
+</html>
