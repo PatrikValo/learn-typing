@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
-import config from "../shared/config";
 import solidPlugin from "vite-plugin-solid";
+
+const port = 8080;
 
 export default defineConfig({
 	plugins: [solidPlugin()],
@@ -8,5 +9,5 @@ export default defineConfig({
 		target: "esnext",
 		polyfillDynamicImport: false,
 	},
-	base: `http://localhost:${config.port}/`,
+	base: `http://localhost:${port}/`,
 });

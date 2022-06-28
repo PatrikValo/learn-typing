@@ -1,15 +1,11 @@
 import * as fs from "fs";
 import * as path from "path";
 
+export const hiddenDirname = ".learn-writing";
+
 export interface Core {
-	/**
-	 * Create hidden copy of the directory for suggestions.
-	 * Clear all the files in directory.
-	 */
 	run(): void;
 }
-
-export const hiddenDirname = ".learn-writing";
 
 class CoreImpl implements Core {
 	private static readonly blacklist = [".git", hiddenDirname];
