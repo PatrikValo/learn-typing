@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { KeyboardServer } from "./keyboardServer";
+import { KeyboardServer } from "./server/index";
 import { hiddenDirname } from "./core";
 import * as path from "path";
 import * as fs from "fs";
