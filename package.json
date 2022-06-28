@@ -21,7 +21,7 @@
 		"commands": [
 			{
 				"command": "learn-typing.start",
-				"title": "Start to learn typing"
+				"title": "Start learn typing"
 			},
 			{
 				"command": "learn-typing.prepare",
