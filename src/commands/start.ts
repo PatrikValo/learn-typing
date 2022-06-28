@@ -32,9 +32,9 @@ const startExecutor = () => {
 	const server = runKeyboardServer();
 	runUIComponent();
 	runCompletionComponent(server);
-	vscode.window.showInformationMessage("Learn writing activated!");
+	vscode.window.showInformationMessage("Learn typing activated!");
 };
 
-const start: Command = ["learn-writing.start", startExecutor];
+const start: Command = ["learn-typing.start", startExecutor];
 
 export default start;

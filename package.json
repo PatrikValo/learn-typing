@@ -1,6 +1,6 @@
 {
-	"name": "learn-writing",
-	"displayName": "learn writing",
+	"name": "learn-typing",
+	"displayName": "learn typing",
 	"description": "",
 	"version": "0.0.1",
 	"engines": {
@@ -13,19 +13,19 @@
 		"inlineCompletions"
 	],
 	"activationEvents": [
-		"onCommand:learn-writing.start",
-		"onCommand:learn-writing.prepare"
+		"onCommand:learn-typing.start",
+		"onCommand:learn-typing.prepare"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "learn-writing.start",
-				"title": "Start to learn writing"
+				"command": "learn-typing.start",
+				"title": "Start to learn typing"
 			},
 			{
-				"command": "learn-writing.prepare",
-				"title": "Prepare learn writing"
+				"command": "learn-typing.prepare",
+				"title": "Prepare learn typing"
 			}
 		]
 	},

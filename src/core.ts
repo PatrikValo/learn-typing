@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-export const hiddenDirname = ".learn-writing";
+export const hiddenDirname = ".learn-typing";
 
 export interface Core {
 	run(): void;
