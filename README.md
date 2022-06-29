@@ -12,9 +12,10 @@
 
 ## Run extension
 
-1. Open vscode with current project
-2. `F5`
-3. There should be open a new vscode window
+1. Run `npm run build` in `ui` directory
+2. Open vscode with current project
+3. `F5`
+4. There should be open a new vscode window
 
 ## Using extension
 
