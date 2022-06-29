@@ -1,9 +1,12 @@
 import { KeyProps } from "../components/Key";
 
-const charToFinger = {
+const leftHand = {
+	"~": 5,
 	"`": 5,
 	"1": 5,
+	"!": 5,
 	"2": 5,
+	"@": 5,
 	tab: 5,
 	q: 5,
 	a: 5,
@@ -30,11 +33,15 @@ const charToFinger = {
 	g: 2,
 	b: 2,
 	" ": 1,
+} as Record<string, 1 | 2 | 3 | 4 | 5>;
+
+const rightHand = {
 	"]": 5,
 	"}": 5,
 	"\\": 5,
 	"|": 5,
 	enter: 5,
+	shift: 5,
 	"": 5,
 	"=": 5,
 	"+": 5,
@@ -73,14 +80,7 @@ const charToFinger = {
 	n: 2,
 } as Record<string, 1 | 2 | 3 | 4 | 5>;
 
-const charactersWithShift = [
-	"~",
-	"!",
-	"@",
-	"#",
-	"$",
-	"%",
-	"^",
+const shiftLeftHand = [
 	"&",
 	"*",
 	"(",
@@ -97,11 +97,10 @@ const charactersWithShift = [
 	"?",
 ];
 
+const shiftRightHand = ["~", "!", "@", "#", "$", "%", "^"];
+
 export const keyToFinger = (input: string): 1 | 2 | 3 | 4 | 5 | undefined => {
-	if (["Q", "A", "Z", "~", "!", "@"].includes(input)) {
-		return 4;
-	}
-	return charToFinger[input.toLowerCase()];
+	return leftHand[input.toLowerCase()] ?? rightHand[input.toLowerCase()];
 };
 
 export const createFirstRow = (input: string): KeyProps[] => {
@@ -210,6 +209,22 @@ export const createThirdRow = (input: string): KeyProps[] => {
 	] as KeyProps[];
 };
 
+const touchLeftShift = (input: string): boolean => {
+	const inputLowerCase = input.toLowerCase();
+	return (
+		(inputLowerCase !== input && rightHand[inputLowerCase] !== undefined) ||
+		shiftLeftHand.includes(input)
+	);
+};
+
+const touchRightShift = (input: string): boolean => {
+	const inputLowerCase = input.toLowerCase();
+	return (
+		(inputLowerCase !== input && leftHand[inputLowerCase] !== undefined) ||
+		shiftRightHand.includes(input)
+	);
+};
+
 export const createFourthRow = (input: string): KeyProps[] => {
 	const letterCharacters = ["Z", "X", "C", "V", "B", "N", "M"];
 	const doubleCharacters = [
@@ -224,8 +239,7 @@ export const createFourthRow = (input: string): KeyProps[] => {
 			verticalAlign: "down",
 			horizontalAlign: "left",
 			width: "w6",
-			touch:
-				input.toLowerCase() !== input || charactersWithShift.includes(input),
+			touch: touchLeftShift(input),
 		},
 		...letterCharacters.map((title) => ({
 			variant: "letter",
@@ -243,7 +257,7 @@ export const createFourthRow = (input: string): KeyProps[] => {
 			verticalAlign: "down",
 			horizontalAlign: "right",
 			width: "w6",
-			touch: false,
+			touch: touchRightShift(input),
 		},
 	] as KeyProps[];
 };
